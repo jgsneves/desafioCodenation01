@@ -51,5 +51,7 @@ def classify_by_phone_number(records):
 
         print(call)
 
+        # calculando a tempo total da ligação:
+
 
 classify_by_phone_number(records)
