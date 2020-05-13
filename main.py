@@ -1,4 +1,5 @@
 import time
+import datetime
 from operator import itemgetter
 
 records = [
@@ -49,9 +50,14 @@ def classify_by_phone_number(records):
         # print(newStartTime)
         call['start'] = newStartTime
 
-        print(call)
-
+        # print(call)
         # calculando a tempo total da ligação:
+        startTimeDatetime = datetime.datetime.strptime(
+            newStartTime, '%d-%m-%Y  %H:%M:%S')
+        endTimeDatetime = datetime.datetime.strptime(
+            newEndtime, '%d-%m-%Y  %H:%M:%S')
+        subs = endTimeDatetime - startTimeDatetime
+        print(subs)
 
 
 classify_by_phone_number(records)
