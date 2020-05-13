@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 from operator import itemgetter
 
 records = [
@@ -30,8 +30,26 @@ records = [
 
 
 def classify_by_phone_number(records):
+    # colocando a lista de chamadas por ordem de número de telefone
     sortedList = sorted(records, key=itemgetter('source'))
-    print(sortedList)
+    # print(sortedList)
+
+    for call in sortedList:
+        # modificando o tempo do começo da chamada
+        endTime = call['end']
+        newEndtime = time.strftime(
+            '%d-%m-%Y  %H:%M:%S', time.localtime(endTime))
+        # print(newEndtime)
+        call['end'] = newEndtime
+
+        # modificando o tempo do fim da chamada
+        startTime = call['start']
+        newStartTime = time.strftime(
+            '%d-%m-%Y  %H:%M:%S', time.localtime(startTime))
+        # print(newStartTime)
+        call['start'] = newStartTime
+
+        print(call)
 
 
 classify_by_phone_number(records)
