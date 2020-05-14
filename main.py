@@ -2,6 +2,7 @@ import time
 import datetime
 from operator import itemgetter
 
+
 records = [
     {'source': '48-996355555', 'destination': '48-666666666',
         'end': 1564610974, 'start': 1564610674},
@@ -51,13 +52,26 @@ def classify_by_phone_number(records):
         call['start'] = newStartTime
 
         # print(call)
-        # calculando a tempo total da ligação:
-        startTimeDatetime = datetime.datetime.strptime(
-            newStartTime, '%d-%m-%Y  %H:%M:%S')
-        endTimeDatetime = datetime.datetime.strptime(
-            newEndtime, '%d-%m-%Y  %H:%M:%S')
-        subs = endTimeDatetime - startTimeDatetime
-        print(subs)
+        onlyHourStart = newStartTime[12:14]
+        # print(onlyHourStart)
+
+        # separação das ligações que iniciaram
+        # após as 22 e aplicação da taxa diversa:
+        hourInt = int(onlyHourStart)
+        if hourInt < 22 and hourInt >= 6:
+            startTimeDatetime = datetime.datetime.strptime(
+                newStartTime, '%d-%m-%Y  %H:%M:%S')
+            endTimeDatetime = datetime.datetime.strptime(
+                newEndtime, '%d-%m-%Y  %H:%M:%S')
+            subs = endTimeDatetime - startTimeDatetime
+            subsOnSeconds = subs.total_seconds()
+            subsMins = int(subsOnSeconds/60)
+            tax = 0.36 + (0.09*subsMins)
+            taxRounded = round(tax, 2)
+            print('taxa de hora entre 6 e 22: ', taxRounded)
+        else:
+            tax = 0.36
+            print('taxa de hora entre 22 e 6: ', tax)
 
 
 classify_by_phone_number(records)
