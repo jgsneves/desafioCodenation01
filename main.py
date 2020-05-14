@@ -35,6 +35,7 @@ def classify_by_phone_number(records):
     # colocando a lista de chamadas por ordem de número de telefone
     sortedList = sorted(records, key=itemgetter('source'))
     # print(sortedList)
+    retorno = []
 
     for call in sortedList:
         # modificando o tempo do começo da chamada
@@ -68,10 +69,16 @@ def classify_by_phone_number(records):
             subsMins = int(subsOnSeconds/60)
             tax = 0.36 + (0.09*subsMins)
             taxRounded = round(tax, 2)
-            print('taxa de hora entre 6 e 22: ', taxRounded)
+            # print('taxa de hora entre 6 e 22: ', taxRounded)
         else:
-            tax = 0.36
-            print('taxa de hora entre 22 e 6: ', tax)
+            taxRounded = 0.36
+            # print('taxa de hora entre 22 e 6: ', tax)
+
+        # atribuindo valores a lista retorno:
+        newSource = call['source']
+        retorno.append({'source': f'{newSource}', 'total': f'{taxRounded}'})
+
+    print(retorno)
 
 
 classify_by_phone_number(records)
