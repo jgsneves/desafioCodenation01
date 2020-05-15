@@ -1,6 +1,6 @@
-import time
-import datetime
+from datetime import datetime, timedelta
 from operator import itemgetter
+import math
 
 
 records = [
@@ -32,53 +32,53 @@ records = [
 
 
 def classify_by_phone_number(records):
-    # colocando a lista de chamadas por ordem de número de telefone
     sortedList = sorted(records, key=itemgetter('source'))
-    # print(sortedList)
-    retorno = []
+    bills = []
 
     for call in sortedList:
-        # modificando o tempo do começo da chamada
-        endTime = call['end']
-        newEndtime = time.strftime(
-            '%d-%m-%Y  %H:%M:%S', time.localtime(endTime))
-        # print(newEndtime)
-        call['end'] = newEndtime
+        newEndtime = datetime.fromtimestamp(call['end'])
+        newStartTime = datetime.fromtimestamp(call['start'])
+        subs = newEndtime - newStartTime
+        subsMins = math.trunc(subs / timedelta(minutes=1))
+        # Agradecimentos a Ennio Aoki pela ideia do trunc!
+        # Agradecimentos também a Fernando Aragão, Carlos Augusto Moreno
+        # Ribeiro e Leonardo Fernandes por me ajudarem a iterar sobre ints
+        # ao invés de strs
 
-        # modificando o tempo do fim da chamada
-        startTime = call['start']
-        newStartTime = time.strftime(
-            '%d-%m-%Y  %H:%M:%S', time.localtime(startTime))
-        # print(newStartTime)
-        call['start'] = newStartTime
+        if newStartTime.hour < 22 and newStartTime.hour >= 6:
+            taxRounded = round(0.36 + (0.09*subsMins), 2)
 
-        # print(call)
-        onlyHourStart = newStartTime[12:14]
-        # print(onlyHourStart)
-
-        # separação das ligações que iniciaram
-        # após as 22 e aplicação da taxa diversa:
-        hourInt = int(onlyHourStart)
-        if hourInt < 22 and hourInt >= 6:
-            startTimeDatetime = datetime.datetime.strptime(
-                newStartTime, '%d-%m-%Y  %H:%M:%S')
-            endTimeDatetime = datetime.datetime.strptime(
-                newEndtime, '%d-%m-%Y  %H:%M:%S')
-            subs = endTimeDatetime - startTimeDatetime
-            subsOnSeconds = subs.total_seconds()
-            subsMins = int(subsOnSeconds/60)
-            tax = 0.36 + (0.09*subsMins)
-            taxRounded = round(tax, 2)
-            # print('taxa de hora entre 6 e 22: ', taxRounded)
         else:
             taxRounded = 0.36
-            # print('taxa de hora entre 22 e 6: ', tax)
 
-        # atribuindo valores a lista retorno:
         newSource = call['source']
-        retorno.append({'source': f'{newSource}', 'total': f'{taxRounded}'})
+        bills.append({'source': f'{newSource}', 'total': taxRounded})
 
-    print(retorno)
+    beg = []
+    end = []
+    i = 0
+    while (i < len(bills)-1):
+        beg.append(i)
+        source = bills[i]['source']
+        for j in range(i+1, len(bills)):
+            if not (source == bills[j]['source']):
+                end.append(j)
+                i = j
+                break
+            elif (j == len(bills)-1):
+                end.append(j+1)
+                i = j
+
+    result = []
+    for i in range(0, len(beg)):
+        nome = bills[beg[i]]['source']
+        total = 0
+        for j in range(beg[i], end[i]):
+            total = round(total + float(bills[j]['total']), 2)
+        result.append({'source': f'{nome}', 'total': total})
+
+    result.sort(key=lambda k: k['total'], reverse=True)
+    return result
 
 
 classify_by_phone_number(records)
